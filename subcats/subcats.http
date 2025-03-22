@@ -1,0 +1,6 @@
+@subcats_HostAddress = http://localhost:5100
+
+GET {{subcats_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
