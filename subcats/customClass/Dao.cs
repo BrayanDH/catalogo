@@ -351,7 +351,7 @@ namespace subcats.customClass
             }
         }
 
-        public void ActualizarProducto(Producto producto)
+        public bool ActualizarProducto(Producto producto)
         {
             try
             {
@@ -376,7 +376,12 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@impuesto", producto.Impuesto);
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
-                    cmd.ExecuteNonQuery();
+                    
+                    // Ejecutar la consulta y obtener el número de filas afectadas
+                    int filasAfectadas = cmd.ExecuteNonQuery();
+                    
+                    // Retornar true si al menos una fila fue actualizada
+                    return filasAfectadas > 0;
                 }
             }
             catch (Exception)

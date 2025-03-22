@@ -80,11 +80,16 @@
   {
     "ContainingType": "subcats.Controllers.ProductosController",
     "Method": "ActualizarProducto",
-    "RelativePath": "Productos/Update",
+    "RelativePath": "Productos/Update/{productoId}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "productoId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
       {
         "Name": "producto",
         "Type": "subcats.dto.Producto",

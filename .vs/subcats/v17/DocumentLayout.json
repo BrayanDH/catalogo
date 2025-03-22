@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Brayan\\source\\repos\\catalogo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\brayan\\source\\repos\\catalogo\\subcats\\dto\\subcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|solutionrelative:subcats\\dto\\subcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\brayan\\source\\repos\\catalogo\\subcats\\customclass\\dao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|solutionrelative:subcats\\customclass\\dao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\brayan\\source\\repos\\catalogo\\subcats\\dto\\subcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|solutionrelative:subcats\\dto\\subcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\brayan\\source\\repos\\catalogo\\subcats\\customclass\\conection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,7 +63,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "SubCategorias.cs",
               "DocumentMoniker": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\dto\\SubCategorias.cs",
               "RelativeDocumentMoniker": "subcats\\dto\\SubCategorias.cs",
@@ -94,13 +94,13 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Dao.cs",
               "DocumentMoniker": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\customClass\\Dao.cs",
               "RelativeDocumentMoniker": "subcats\\customClass\\Dao.cs",
               "ToolTip": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\customClass\\Dao.cs",
               "RelativeToolTip": "subcats\\customClass\\Dao.cs",
-              "ViewState": "AgIAAFEAAAAAAAAAAAAowGMAAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAowHAAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-24T03:57:14.734Z",
               "EditorCaption": ""

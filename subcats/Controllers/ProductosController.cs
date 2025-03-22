@@ -46,14 +46,27 @@ namespace subcats.Controllers
         }
 
         [HttpPut]
-        [Route("Update")]
+        [Route("Update/{productoId}")]
         [EnableCors("AnotherPolicy")]
-        public IActionResult ActualizarProducto([FromBody] Producto producto)
+        public IActionResult ActualizarProducto(string productoId, [FromBody] Producto producto)
         {
             try
             {
-                db.ActualizarProducto(producto);
-                return Ok();
+                // Asegurarnos de que el ID se asigne correctamente
+                int id = int.Parse(productoId);
+                producto.Id_producto = id;
+                
+                // Intenta actualizar el producto y verifica si se realizó algún cambio
+                bool actualizado = db.ActualizarProducto(producto);
+                
+                if (actualizado)
+                {
+                    return Ok($"Producto con ID {productoId} actualizado correctamente");
+                }
+                else
+                {
+                    return NotFound($"No se encontró el producto con ID {productoId} o no se realizaron cambios");
+                }
             }
             catch (Exception ex)
             {
