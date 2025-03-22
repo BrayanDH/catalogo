@@ -15,7 +15,8 @@ namespace subcats.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // Redireccionar a la página de productos
+            return RedirectToAction("Index", "Productos");
         }
 
         public IActionResult Privacy()

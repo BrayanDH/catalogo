@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using subcats.customClass;
 using subcats.dto;
@@ -7,86 +6,160 @@ using System.Collections.Generic;
 
 namespace subcats.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ProductosController : ControllerBase
+    public class ProductosController : Controller
     {
-        Dao db = new Dao();
+        private readonly Dao _db = new Dao();
 
+        // GET: Productos
+        public IActionResult Index()
+        {
+            try
+            {
+                var productos = _db.GetAllProductos();
+                return View(productos);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al cargar productos: {ex.Message}";
+                return View(new List<Producto>());
+            }
+        }
+
+        // GET: Productos/Details/5
+        public IActionResult Details(int id)
+        {
+            try
+            {
+                var producto = _db.GetProducto(id.ToString());
+                if (producto == null || producto.Id_producto == 0)
+                {
+                    return NotFound();
+                }
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al cargar el producto: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET: Productos/Create
+        public IActionResult Create()
+        {
+            return View(new Producto());
+        }
+
+        // POST: Productos/Create
         [HttpPost]
-        [Route("Add")]
-        [EnableCors("AnotherPolicy")]
-        public IActionResult InsertarProducto([FromBody] Producto producto)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Producto producto)
         {
             try
             {
-                db.InsertarProducto(producto);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("Get/{productoId}")]
-        [EnableCors("AnotherPolicy")]
-        public Producto GetProducto(string productoId)
-        {
-            return db.GetProducto(productoId);
-        }
-
-        [HttpGet]
-        [Route("GetAll")]
-        [EnableCors("AnotherPolicy")]
-        public List<Producto> GetAllProductos()
-        {
-            return db.GetAllProductos();
-        }
-
-        [HttpPut]
-        [Route("Update/{productoId}")]
-        [EnableCors("AnotherPolicy")]
-        public IActionResult ActualizarProducto(string productoId, [FromBody] Producto producto)
-        {
-            try
-            {
-                // Asegurarnos de que el ID se asigne correctamente
-                int id = int.Parse(productoId);
-                producto.Id_producto = id;
-                
-                // Intenta actualizar el producto y verifica si se realizó algún cambio
-                bool actualizado = db.ActualizarProducto(producto);
-                
-                if (actualizado)
+                if (ModelState.IsValid)
                 {
-                    return Ok($"Producto con ID {productoId} actualizado correctamente");
+                    _db.InsertarProducto(producto);
+                    TempData["SuccessMessage"] = "Producto creado exitosamente.";
+                    return RedirectToAction(nameof(Index));
                 }
-                else
-                {
-                    return NotFound($"No se encontró el producto con ID {productoId} o no se realizaron cambios");
-                }
+                return View(producto);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                TempData["ErrorMessage"] = $"Error al crear el producto: {ex.Message}";
+                return View(producto);
             }
         }
 
-        [HttpDelete]
-        [Route("Delete/{productoId}")]
-        [EnableCors("AnotherPolicy")]
-        public IActionResult EliminarProducto(string productoId)
+        // GET: Productos/Edit/5
+        public IActionResult Edit(int id)
         {
             try
             {
-                db.EliminarProducto(productoId);
-                return Ok();
+                var producto = _db.GetProducto(id.ToString());
+                if (producto == null || producto.Id_producto == 0)
+                {
+                    return NotFound();
+                }
+                return View(producto);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                TempData["ErrorMessage"] = $"Error al cargar el producto: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Productos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Producto producto)
+        {
+            try
+            {
+                if (id != producto.Id_producto)
+                {
+                    return NotFound();
+                }
+
+                if (ModelState.IsValid)
+                {
+                    bool actualizado = _db.ActualizarProducto(producto);
+                    if (actualizado)
+                    {
+                        TempData["SuccessMessage"] = "Producto actualizado exitosamente.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "No se pudo actualizar el producto. Verifique los datos e intente nuevamente.";
+                        return View(producto);
+                    }
+                }
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al actualizar el producto: {ex.Message}";
+                return View(producto);
+            }
+        }
+
+        // GET: Productos/Delete/5
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var producto = _db.GetProducto(id.ToString());
+                if (producto == null || producto.Id_producto == 0)
+                {
+                    return NotFound();
+                }
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al cargar el producto: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Productos/Delete/5
+        [HttpPost, ActionName("DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            try
+            {
+                _db.EliminarProducto(id.ToString());
+                TempData["SuccessMessage"] = "Producto eliminado exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al eliminar el producto: {ex.Message}";
+                return RedirectToAction(nameof(Index));
             }
         }
     }

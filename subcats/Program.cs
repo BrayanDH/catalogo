@@ -1,7 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AnotherPolicy",
@@ -11,7 +16,7 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
-}); // Configura el servicio CORS con una política específica
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -23,17 +28,28 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseRouting(); // Asegúrate de que tienes esto antes de UseCors()
+app.UseRouting();
 
-app.UseCors("AnotherPolicy"); // Aplica la política CORS específica
+app.UseCors("AnotherPolicy");
 
 app.UseAuthorization();
 
+// Configurar las rutas de MVC primero
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// DespuÃ©s mapear los controladores de API
 app.MapControllers();
 
 app.Run();
