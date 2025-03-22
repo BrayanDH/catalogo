@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "lCV5zU0N+X8=",
+  "dgSpecHash": "l+2xlkCY0vg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Brayan\\source\\repos\\subcats\\subcats\\subcats.csproj",
+  "projectFilePath": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\subcats.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Brayan\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Brayan\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

@@ -2307,11 +2307,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Brayan\\source\\repos\\subcats\\subcats\\subcats.csproj",
+      "projectUniqueName": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\subcats.csproj",
       "projectName": "subcats",
-      "projectPath": "C:\\Users\\Brayan\\source\\repos\\subcats\\subcats\\subcats.csproj",
+      "projectPath": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\subcats.csproj",
       "packagesPath": "C:\\Users\\Brayan\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Brayan\\source\\repos\\subcats\\subcats\\obj\\",
+      "outputPath": "C:\\Users\\Brayan\\source\\repos\\catalogo\\subcats\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Brayan\\AppData\\Roaming\\NuGet\\NuGet.Config",

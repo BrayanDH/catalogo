@@ -1,5 +1,99 @@
 [
   {
+    "ContainingType": "subcats.Controllers.ProductosController",
+    "Method": "InsertarProducto",
+    "RelativePath": "Productos/Add",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "producto",
+        "Type": "subcats.dto.Producto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "subcats.Controllers.ProductosController",
+    "Method": "EliminarProducto",
+    "RelativePath": "Productos/Delete/{productoId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productoId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "subcats.Controllers.ProductosController",
+    "Method": "GetProducto",
+    "RelativePath": "Productos/Get/{productoId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productoId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "subcats.dto.Producto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "subcats.Controllers.ProductosController",
+    "Method": "GetAllProductos",
+    "RelativePath": "Productos/GetAll",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[subcats.dto.Producto, subcats, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "subcats.Controllers.ProductosController",
+    "Method": "ActualizarProducto",
+    "RelativePath": "Productos/Update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "producto",
+        "Type": "subcats.dto.Producto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "subcats.Controllers.SubCategoriasController",
     "Method": "InsertarPanSubCategoria",
     "RelativePath": "SubCategorias/Add",

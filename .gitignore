@@ -1,0 +1,13 @@
+# Archivos de cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.idea/
+.env
+*.pem
+.keys/
+.xml
+.cpython-3010.pyc
+.venv/
+venv/
+*.vsidx
