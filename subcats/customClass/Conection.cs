@@ -6,25 +6,13 @@ namespace subcats.customClass
     public class Conection
     {
         public SqlConnection connection;
-        //public SqlConnection connectionSms;
         public SqlCommand sqlCommand;
         public SqlDataReader sqlDataReader;
+        private const string connectionString = @"Server=LAPTOP-UVA1MQ5B\SQLEXPRESS;Database=patitofeo;Trusted_Connection=True;TrustServerCertificate=true;";
+
         public Conection()
         {
-
-            string variableValue = Environment.GetEnvironmentVariable("LocalSQL");
-            var machine = System.Environment.MachineName;
-
-            connection = new SqlConnection(variableValue);
-            //if (machine != "VMACDE1B5")
-            //{
-            //    variableValue = Environment.GetEnvironmentVariable("DEVELOPER");
-            //    connection = new SqlConnection(variableValue);
-            //}
-
-
+            connection = new SqlConnection(connectionString);
         }
     }
 }
-
-

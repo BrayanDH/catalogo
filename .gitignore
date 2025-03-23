@@ -11,3 +11,6 @@ __pycache__/
 .venv/
 venv/
 *.vsidx
+Conection.cs
+*.bin
+*.dll
