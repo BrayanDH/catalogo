@@ -1,0 +1,72 @@
+@model IEnumerable<subcats.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Administrar Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h1>Administración de Usuarios</h1>
+    
+    <p>
+        <a asp-action="Crear" class="btn btn-primary">Crear Nuevo Usuario</a>
+    </p>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Listado de Usuarios</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre de Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Username</td>
+                            <td>@item.Role</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal@(item.Id)">
+                                        Eliminar
+                                    </button>
+                                </div>
+
+                                <!-- Modal de confirmación para eliminar -->
+                                <div class="modal fade" id="deleteModal@(item.Id)" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                ¿Está seguro que desea eliminar al usuario <strong>@item.Username</strong>?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form asp-action="Eliminar" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

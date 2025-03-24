@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using subcats.customClass;
 using subcats.dto;
 using System;
@@ -13,6 +14,12 @@ namespace subcats.Controllers
         // GET: Productos
         public IActionResult Index()
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 var productos = _db.GetAllProductos();
@@ -20,7 +27,7 @@ namespace subcats.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Error al cargar productos: {ex.Message}";
+                TempData["ErrorMessage"] = "Error al obtener los productos: " + ex.Message;
                 return View(new List<Producto>());
             }
         }
@@ -28,6 +35,12 @@ namespace subcats.Controllers
         // GET: Productos/Details/5
         public IActionResult Details(int id)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 var producto = _db.GetProducto(id.ToString());
@@ -47,6 +60,12 @@ namespace subcats.Controllers
         // GET: Productos/Create
         public IActionResult Create()
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             return View(new Producto());
         }
 
@@ -55,6 +74,12 @@ namespace subcats.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Producto producto)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 if (ModelState.IsValid)
@@ -75,6 +100,12 @@ namespace subcats.Controllers
         // GET: Productos/Edit/5
         public IActionResult Edit(int id)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 var producto = _db.GetProducto(id.ToString());
@@ -96,6 +127,12 @@ namespace subcats.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Producto producto)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 if (id != producto.Id_producto)
@@ -129,6 +166,12 @@ namespace subcats.Controllers
         // GET: Productos/Delete/5
         public IActionResult Delete(int id)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 var producto = _db.GetProducto(id.ToString());
@@ -150,6 +193,12 @@ namespace subcats.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             try
             {
                 _db.EliminarProducto(id.ToString());

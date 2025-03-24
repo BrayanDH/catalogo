@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using subcats.Models;
 using System.Diagnostics;
 
@@ -15,6 +16,12 @@ namespace subcats.Controllers
 
         public IActionResult Index()
         {
+            // Verificar si el usuario está autenticado
+            if (HttpContext.Session.GetString("UserId") == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             // Redireccionar a la página de productos
             return RedirectToAction("Index", "Productos");
         }
