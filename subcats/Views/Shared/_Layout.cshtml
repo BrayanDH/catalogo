@@ -107,7 +107,16 @@
             &copy; @DateTime.Now.Year - Catálogo de Productos - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Cargar jQuery desde CDN con fallback a archivo local -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+            crossorigin="anonymous"></script>
+    <script>
+        // Fallback a jQuery local si CDN falla
+        if (typeof jQuery == 'undefined') {
+            document.write('<script src="~/lib/jquery/dist/jquery.min.js"><\/script>');
+        }
+    </script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

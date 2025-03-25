@@ -24,9 +24,11 @@
             {
                 <div class="col">
                     <div class="card h-100 shadow-sm">
-                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        @if (producto.Imagen != null && producto.Imagen.Length > 0)
                         {
-                            <img src="@producto.ImagenUrl" class="card-img-top" alt="@producto.Nombre" 
+                            <img src="@Url.Action("GetImage", "Productos", new { id = producto.Id_producto })" 
+                                 class="card-img-top" 
+                                 alt="@producto.Nombre" 
                                  style="height: 180px; object-fit: contain; padding: 10px;">
                         }
                         else

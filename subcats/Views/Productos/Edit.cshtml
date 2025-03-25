@@ -11,32 +11,40 @@
                     <h4>Editar Producto</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
                         <input type="hidden" asp-for="Id_producto" />
                         <div class="mb-3">
                             <label asp-for="Nombre" class="form-label">Nombre</label>
-                            <input asp-for="Nombre" class="form-control" required />
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="Descripcion" class="form-label">Descripción</label>
                             <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="Precio" class="form-label">Precio</label>
-                            <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0" required />
+                            <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0.01" />
+                            <span asp-validation-for="Precio" class="text-danger"></span>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Impuesto" class="form-label">Impuesto (%)</label>
-                                <input asp-for="Impuesto" class="form-control" type="number" step="0.01" min="0" required />
+                                <input asp-for="Impuesto" class="form-control" type="number" step="0.01" min="0" max="100" />
+                                <span asp-validation-for="Impuesto" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Descuento" class="form-label">Descuento (%)</label>
-                                <input asp-for="Descuento" class="form-control" type="number" step="0.01" min="0" />
+                                <input asp-for="Descuento" class="form-control" type="number" step="0.01" min="0" max="100" />
+                                <span asp-validation-for="Descuento" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Stock" class="form-label">Stock</label>
-                                <input asp-for="Stock" class="form-control" type="number" min="0" required />
+                                <input asp-for="Stock" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -44,16 +52,26 @@
                             <select asp-for="CategoriaId" class="form-select" asp-items="ViewBag.Categorias">
                                 <option value="">-- Seleccione una categoría --</option>
                             </select>
+                            <span asp-validation-for="CategoriaId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label asp-for="ImagenUrl" class="form-label">URL de la Imagen</label>
-                            <input asp-for="ImagenUrl" class="form-control" placeholder="https://ejemplo.com/imagen.jpg" />
-                            @if (!string.IsNullOrEmpty(Model.ImagenUrl))
-                            {
-                                <div class="mt-2">
-                                    <img src="@Model.ImagenUrl" style="max-width: 150px; max-height: 150px;" class="img-thumbnail" />
-                                </div>
-                            }
+                            <label asp-for="ImagenFile" class="form-label">Imagen del Producto</label>
+                            <input asp-for="ImagenFile" class="form-control" type="file" accept="image/*" id="imagenInput" />
+                            <div class="form-text">Seleccione una nueva imagen para actualizar la actual (opcional)</div>
+                            <span asp-validation-for="ImagenFile" class="text-danger"></span>
+                            
+                            <div id="imagenPreview" class="mt-2 @(Model.Imagen != null && Model.Imagen.Length > 0 ? "" : "d-none")">
+                                <label class="form-label">Vista previa:</label>
+                                @if (Model.Imagen != null && Model.Imagen.Length > 0)
+                                {
+                                    <img id="previewImage" src="@Url.Action("GetImage", "Productos", new { id = Model.Id_producto })" 
+                                         class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                                }
+                                else
+                                {
+                                    <img id="previewImage" src="#" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                                }
+                            </div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-secondary">Volver al Catálogo</a>
@@ -65,3 +83,27 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagenInput = document.getElementById('imagenInput');
+            const imagenPreview = document.getElementById('imagenPreview');
+            const previewImage = document.getElementById('previewImage');
+            
+            imagenInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        imagenPreview.classList.remove('d-none');
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

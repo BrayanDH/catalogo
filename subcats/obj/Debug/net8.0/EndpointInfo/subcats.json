@@ -301,6 +301,9 @@
         "format": "int32"
       },
       "PanSubCategoria": {
+        "required": [
+          "description"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -313,8 +316,8 @@
             "nullable": true
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "userId": {
             "type": "integer",

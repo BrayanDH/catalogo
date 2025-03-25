@@ -38,18 +38,13 @@ namespace subcats.customClass
                         fecha_actualizacion DATETIME DEFAULT GETDATE(),
                         CategoriaId INT NULL,
                         Imagen VARBINARY(MAX) NULL,
-                        imagen_url NVARCHAR(500) NULL
+                        ImagenBinaria VARBINARY(MAX) NULL
                     );
                 END
                 
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('productos') AND name = 'stock')
                 BEGIN
                     ALTER TABLE productos ADD stock INT NOT NULL DEFAULT 0;
-                END
-                
-                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('productos') AND name = 'imagen_url')
-                BEGIN
-                    ALTER TABLE productos ADD imagen_url NVARCHAR(500) NULL;
                 END
                 ");
 
@@ -258,8 +253,9 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion, CategoriaId, imagen_url
-                                FROM productos WHERE id_producto = @productoId";
+                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, 
+                              fecha_creacion, fecha_actualizacion, CategoriaId, ImagenBinaria as Imagen
+                         FROM productos WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     cmd.Parameters.AddWithValue("@productoId", int.Parse(productoId));
@@ -277,13 +273,30 @@ namespace subcats.customClass
                         producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
                         producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
                         producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
-                        producto.ImagenUrl = reader.IsDBNull(reader.GetOrdinal("imagen_url")) ? null : reader.GetString(reader.GetOrdinal("imagen_url"));
+                        
+                        // Recuperar datos de imagen si existen
+                        if (!reader.IsDBNull(reader.GetOrdinal("Imagen")))
+                        {
+                            // Obtener el tamaño del campo binario
+                            long byteLength = reader.GetBytes(reader.GetOrdinal("Imagen"), 0, null, 0, 0);
+                            producto.Imagen = new byte[byteLength];
+                            reader.GetBytes(reader.GetOrdinal("Imagen"), 0, producto.Imagen, 0, (int)byteLength);
+                            Console.WriteLine($"Imagen recuperada para producto: {producto.Id_producto}, tamaño: {byteLength} bytes");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El producto {producto.Id_producto} no tiene imagen");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al obtener producto: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
             finally
             {
@@ -298,8 +311,9 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion, CategoriaId, imagen_url
-                                FROM productos";
+                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, 
+                              fecha_creacion, fecha_actualizacion, CategoriaId, ImagenBinaria as Imagen
+                         FROM productos";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -317,7 +331,15 @@ namespace subcats.customClass
                         producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
                         producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
                         producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
-                        producto.ImagenUrl = reader.IsDBNull(reader.GetOrdinal("imagen_url")) ? null : reader.GetString(reader.GetOrdinal("imagen_url"));
+                        
+                        // Recuperar datos de imagen si existen
+                        if (!reader.IsDBNull(reader.GetOrdinal("Imagen")))
+                        {
+                            // Obtener el tamaño del campo binario
+                            long byteLength = reader.GetBytes(reader.GetOrdinal("Imagen"), 0, null, 0, 0);
+                            producto.Imagen = new byte[byteLength];
+                            reader.GetBytes(reader.GetOrdinal("Imagen"), 0, producto.Imagen, 0, (int)byteLength);
+                        }
 
                         productos.Add(producto);
                     }
@@ -326,6 +348,10 @@ namespace subcats.customClass
             catch (Exception ex)
             {
                 Console.WriteLine("Error al obtener productos: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
             finally
             {
@@ -360,6 +386,16 @@ namespace subcats.customClass
         {
             try
             {
+                Console.WriteLine($"Actualizando producto con ID: {producto.Id_producto}");
+                if (producto != null && producto.Imagen != null && producto.Imagen.Length > 0)
+                {
+                    Console.WriteLine($"El producto tiene una imagen de {producto.Imagen.Length} bytes");
+                }
+                else
+                {
+                    Console.WriteLine("El producto no tiene imagen");
+                }
+
                 cnx.connection.Open();
                 string query = @"UPDATE productos 
                                SET nombre = @nombre, 
@@ -370,7 +406,7 @@ namespace subcats.customClass
                                    stock = @stock,
                                    fecha_actualizacion = GETDATE(),
                                    CategoriaId = @categoriaId,
-                                   imagen_url = @imagenUrl
+                                   ImagenBinaria = @imagen
                                WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
@@ -382,17 +418,34 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
                     cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@imagenUrl", producto.ImagenUrl ?? (object)DBNull.Value);
                     
+                    // Manejar imagen como parámetro binario
+                    if (producto.Imagen != null && producto.Imagen.Length > 0)
+                    {
+                        cmd.Parameters.AddWithValue("@imagen", producto.Imagen);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@imagen", DBNull.Value);
+                    }
+                    
+                    Console.WriteLine("Ejecutando consulta de actualización SQL...");
                     // Ejecutar la consulta y obtener el número de filas afectadas
                     int filasAfectadas = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"Filas afectadas: {filasAfectadas}");
                     
                     // Retornar true si al menos una fila fue actualizada
                     return filasAfectadas > 0;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error al actualizar producto: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
             finally
@@ -405,9 +458,19 @@ namespace subcats.customClass
         {
             try
             {
+                Console.WriteLine($"Insertando producto: {producto.Nombre}");
+                if (producto != null && producto.Imagen != null && producto.Imagen.Length > 0)
+                {
+                    Console.WriteLine($"El producto tiene una imagen de {producto.Imagen.Length} bytes");
+                }
+                else
+                {
+                    Console.WriteLine("El producto no tiene imagen");
+                }
+
                 cnx.connection.Open();
-                string query = @"INSERT INTO productos (nombre, descripcion, precio, impuesto, descuento, stock, CategoriaId, imagen_url)
-                                VALUES (@nombre, @descripcion, @precio, @impuesto, @descuento, @stock, @categoriaId, @imagenUrl);
+                string query = @"INSERT INTO productos (nombre, descripcion, precio, impuesto, descuento, stock, CategoriaId, ImagenBinaria)
+                                VALUES (@nombre, @descripcion, @precio, @impuesto, @descuento, @stock, @categoriaId, @imagen);
                                 SELECT SCOPE_IDENTITY();";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
@@ -418,15 +481,43 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
                     cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@imagenUrl", producto.ImagenUrl ?? (object)DBNull.Value);
+                    
+                    // Manejar imagen como parámetro binario
+                    if (producto.Imagen != null && producto.Imagen.Length > 0)
+                    {
+                        cmd.Parameters.AddWithValue("@imagen", producto.Imagen);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@imagen", DBNull.Value);
+                    }
 
+                    Console.WriteLine("Ejecutando consulta SQL...");
                     // Ejecutar la consulta y obtener el ID generado
-                    int id = Convert.ToInt32(cmd.ExecuteScalar());
+                    object result = cmd.ExecuteScalar();
+                    int id = 0;
+                    
+                    if (result != null && result != DBNull.Value)
+                    {
+                        id = Convert.ToInt32(result);
+                        Console.WriteLine($"Producto insertado con ID: {id}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No se pudo obtener el ID del producto insertado");
+                    }
+                    
                     return id;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error al insertar producto: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
             finally

@@ -48,7 +48,20 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Configuración adicional para archivos estáticos
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Evitar el caché para desarrollo
+        if (app.Environment.IsDevelopment())
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+            ctx.Context.Response.Headers.Append("Expires", "-1");
+        }
+    }
+});
 
 app.UseRouting();
 
@@ -66,5 +79,17 @@ app.MapControllerRoute(
 
 // Después mapear los controladores de API
 app.MapControllers();
+
+// Asegurar que existen los directorios de uploads
+var uploadsDir = Path.Combine(app.Environment.WebRootPath, "uploads", "productos");
+if (!Directory.Exists(uploadsDir))
+{
+    Directory.CreateDirectory(uploadsDir);
+    Console.WriteLine($"Directorio creado: {uploadsDir}");
+}
+else
+{
+    Console.WriteLine($"Directorio ya existe: {uploadsDir}");
+}
 
 app.Run();

@@ -22,11 +22,12 @@
                         </div>
                     </div>
                     
-                    @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+                    @if (Model.Imagen != null && Model.Imagen.Length > 0)
                     {
                         <div class="row mb-4">
                             <div class="col-md-12 text-center">
-                                <img src="@Model.ImagenUrl" style="max-width: 200px; max-height: 200px;" class="img-fluid rounded" />
+                                <img src="@Url.Action("GetImage", "Productos", new { id = Model.Id_producto })" 
+                                     style="max-width: 200px; max-height: 200px;" class="img-fluid rounded" />
                             </div>
                         </div>
                     }
