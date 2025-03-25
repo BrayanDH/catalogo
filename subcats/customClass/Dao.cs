@@ -1,6 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using subcats.customClass;
 using subcats.dto;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace subcats.customClass
 {
@@ -18,42 +21,43 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                
-                // Verificar si la tabla existe
-                string checkTableQuery = @"
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(@"
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'productos')
                 BEGIN
                     -- Crear la tabla productos
                     CREATE TABLE productos (
                         id_producto INT IDENTITY(1,1) PRIMARY KEY,
-                        nombre VARCHAR(255) NOT NULL,
-                        descripcion TEXT NULL,
+                        nombre NVARCHAR(100) NOT NULL,
+                        descripcion NVARCHAR(500) NULL,
                         precio DECIMAL(10,2) NOT NULL,
-                        costo DECIMAL(10,2) NOT NULL,
-                        impuesto DECIMAL(5,2) NOT NULL,
-                        descuento DECIMAL(5,2) NULL,
+                        impuesto DECIMAL(10,2) NOT NULL,
+                        descuento DECIMAL(10,2) NULL,
                         stock INT NOT NULL DEFAULT 0,
                         fecha_creacion DATETIME DEFAULT GETDATE(),
-                        fecha_actualizacion DATETIME DEFAULT GETDATE()
+                        fecha_actualizacion DATETIME DEFAULT GETDATE(),
+                        CategoriaId INT NULL,
+                        Imagen VARBINARY(MAX) NULL,
+                        imagen_url NVARCHAR(500) NULL
                     );
                 END
-                ELSE
-                BEGIN
-                    -- Verificar si la columna stock existe, si no, agregarla
-                    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('productos') AND name = 'stock')
-                    BEGIN
-                        ALTER TABLE productos ADD stock INT NOT NULL DEFAULT 0;
-                    END
-                END";
                 
-                using (SqlCommand cmd = new SqlCommand(checkTableQuery, cnx.connection))
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('productos') AND name = 'stock')
+                BEGIN
+                    ALTER TABLE productos ADD stock INT NOT NULL DEFAULT 0;
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('productos') AND name = 'imagen_url')
+                BEGIN
+                    ALTER TABLE productos ADD imagen_url NVARCHAR(500) NULL;
+                END
+                ");
+
+                SqlCommand command = new SqlCommand(sb.ToString(), cnx.connection);
+                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                // Log the error, but don't throw it to avoid breaking the application
                 Console.WriteLine("Error al verificar/crear tabla productos: " + ex.Message);
             }
             finally
@@ -254,32 +258,32 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT id_producto, nombre, descripcion, precio, costo, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion 
-                               FROM productos WHERE id_producto = @productoId";
+                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion, CategoriaId, imagen_url
+                                FROM productos WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     cmd.Parameters.AddWithValue("@productoId", int.Parse(productoId));
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            producto.Id_producto = reader.GetInt32(reader.GetOrdinal("id_producto"));
-                            producto.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
-                            producto.Descripcion = !reader.IsDBNull(reader.GetOrdinal("descripcion")) ? reader.GetString(reader.GetOrdinal("descripcion")) : null;
-                            producto.Precio = reader.GetDecimal(reader.GetOrdinal("precio"));
-                            producto.Costo = reader.GetDecimal(reader.GetOrdinal("costo"));
-                            producto.Impuesto = reader.GetDecimal(reader.GetOrdinal("impuesto"));
-                            producto.Descuento = !reader.IsDBNull(reader.GetOrdinal("descuento")) ? reader.GetDecimal(reader.GetOrdinal("descuento")) : null;
-                            producto.Stock = reader.GetInt32(reader.GetOrdinal("stock"));
-                            producto.Fecha_creacion = !reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? reader.GetDateTime(reader.GetOrdinal("fecha_creacion")) : null;
-                            producto.Fecha_actualizacion = !reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion")) : null;
-                        }
+                        producto.Id_producto = reader.GetInt32(reader.GetOrdinal("id_producto"));
+                        producto.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
+                        producto.Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString(reader.GetOrdinal("descripcion"));
+                        producto.Precio = reader.GetDecimal(reader.GetOrdinal("precio"));
+                        producto.Impuesto = reader.GetDecimal(reader.GetOrdinal("impuesto"));
+                        producto.Descuento = reader.IsDBNull(reader.GetOrdinal("descuento")) ? null : (decimal?)reader.GetDecimal(reader.GetOrdinal("descuento"));
+                        producto.Stock = reader.GetInt32(reader.GetOrdinal("stock"));
+                        producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
+                        producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
+                        producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
+                        producto.ImagenUrl = reader.IsDBNull(reader.GetOrdinal("imagen_url")) ? null : reader.GetString(reader.GetOrdinal("imagen_url"));
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                Console.WriteLine("Error al obtener producto: " + ex.Message);
             }
             finally
             {
@@ -294,33 +298,34 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT id_producto, nombre, descripcion, precio, costo, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion 
-                               FROM productos";
+                string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, fecha_creacion, fecha_actualizacion, CategoriaId, imagen_url
+                                FROM productos";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            Producto producto = new Producto();
-                            producto.Id_producto = reader.GetInt32(reader.GetOrdinal("id_producto"));
-                            producto.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
-                            producto.Descripcion = !reader.IsDBNull(reader.GetOrdinal("descripcion")) ? reader.GetString(reader.GetOrdinal("descripcion")) : null;
-                            producto.Precio = reader.GetDecimal(reader.GetOrdinal("precio"));
-                            producto.Costo = reader.GetDecimal(reader.GetOrdinal("costo"));
-                            producto.Impuesto = reader.GetDecimal(reader.GetOrdinal("impuesto"));
-                            producto.Descuento = !reader.IsDBNull(reader.GetOrdinal("descuento")) ? reader.GetDecimal(reader.GetOrdinal("descuento")) : null;
-                            producto.Stock = reader.GetInt32(reader.GetOrdinal("stock"));
-                            producto.Fecha_creacion = !reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? reader.GetDateTime(reader.GetOrdinal("fecha_creacion")) : null;
-                            producto.Fecha_actualizacion = !reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion")) : null;
-                            productos.Add(producto);
-                        }
+                        Producto producto = new Producto();
+                        producto.Id_producto = reader.GetInt32(reader.GetOrdinal("id_producto"));
+                        producto.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
+                        producto.Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString(reader.GetOrdinal("descripcion"));
+                        producto.Precio = reader.GetDecimal(reader.GetOrdinal("precio"));
+                        producto.Impuesto = reader.GetDecimal(reader.GetOrdinal("impuesto"));
+                        producto.Descuento = reader.IsDBNull(reader.GetOrdinal("descuento")) ? null : (decimal?)reader.GetDecimal(reader.GetOrdinal("descuento"));
+                        producto.Stock = reader.GetInt32(reader.GetOrdinal("stock"));
+                        producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
+                        producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
+                        producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
+                        producto.ImagenUrl = reader.IsDBNull(reader.GetOrdinal("imagen_url")) ? null : reader.GetString(reader.GetOrdinal("imagen_url"));
+
+                        productos.Add(producto);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                Console.WriteLine("Error al obtener productos: " + ex.Message);
             }
             finally
             {
@@ -360,11 +365,12 @@ namespace subcats.customClass
                                SET nombre = @nombre, 
                                    descripcion = @descripcion, 
                                    precio = @precio, 
-                                   costo = @costo, 
                                    impuesto = @impuesto, 
                                    descuento = @descuento,
-                                   stock = @stock, 
-                                   fecha_actualizacion = GETDATE() 
+                                   stock = @stock,
+                                   fecha_actualizacion = GETDATE(),
+                                   CategoriaId = @categoriaId,
+                                   imagen_url = @imagenUrl
                                WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
@@ -372,10 +378,11 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@nombre", producto.Nombre);
                     cmd.Parameters.AddWithValue("@descripcion", producto.Descripcion ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@precio", producto.Precio);
-                    cmd.Parameters.AddWithValue("@costo", producto.Costo);
                     cmd.Parameters.AddWithValue("@impuesto", producto.Impuesto);
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
+                    cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@imagenUrl", producto.ImagenUrl ?? (object)DBNull.Value);
                     
                     // Ejecutar la consulta y obtener el número de filas afectadas
                     int filasAfectadas = cmd.ExecuteNonQuery();
@@ -394,23 +401,28 @@ namespace subcats.customClass
             }
         }
 
-        public void InsertarProducto(Producto producto)
+        public int InsertarProducto(Producto producto)
         {
             try
             {
                 cnx.connection.Open();
-                string query = @"INSERT INTO productos (nombre, descripcion, precio, costo, impuesto, descuento, stock) 
-                               VALUES (@nombre, @descripcion, @precio, @costo, @impuesto, @descuento, @stock)";
+                string query = @"INSERT INTO productos (nombre, descripcion, precio, impuesto, descuento, stock, CategoriaId, imagen_url)
+                                VALUES (@nombre, @descripcion, @precio, @impuesto, @descuento, @stock, @categoriaId, @imagenUrl);
+                                SELECT SCOPE_IDENTITY();";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     cmd.Parameters.AddWithValue("@nombre", producto.Nombre);
                     cmd.Parameters.AddWithValue("@descripcion", producto.Descripcion ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@precio", producto.Precio);
-                    cmd.Parameters.AddWithValue("@costo", producto.Costo);
                     cmd.Parameters.AddWithValue("@impuesto", producto.Impuesto);
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@imagenUrl", producto.ImagenUrl ?? (object)DBNull.Value);
+
+                    // Ejecutar la consulta y obtener el ID generado
+                    int id = Convert.ToInt32(cmd.ExecuteScalar());
+                    return id;
                 }
             }
             catch (Exception)

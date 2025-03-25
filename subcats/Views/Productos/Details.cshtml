@@ -18,6 +18,15 @@
                         </div>
                     </div>
                     
+                    @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+                    {
+                        <div class="row mb-4">
+                            <div class="col-md-12 text-center">
+                                <img src="@Model.ImagenUrl" style="max-width: 300px; max-height: 300px;" class="img-fluid rounded" />
+                            </div>
+                        </div>
+                    }
+                    
                     <div class="row mb-3">
                         <div class="col-md-3 fw-bold">Descripción:</div>
                         <div class="col-md-9">@Model.Descripcion</div>
@@ -26,11 +35,6 @@
                     <div class="row mb-3">
                         <div class="col-md-3 fw-bold">Precio:</div>
                         <div class="col-md-9">$@Model.Precio.ToString("N2")</div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Costo:</div>
-                        <div class="col-md-9">$@Model.Costo.ToString("N2")</div>
                     </div>
                     
                     <div class="row mb-3">
@@ -47,6 +51,14 @@
                         <div class="col-md-3 fw-bold">Stock:</div>
                         <div class="col-md-9">@Model.Stock unidades</div>
                     </div>
+                    
+                    @if (Model.CategoriaId.HasValue)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3 fw-bold">Categoría:</div>
+                            <div class="col-md-9">@ViewBag.NombreCategoria</div>
+                        </div>
+                    }
                     
                     <div class="row mb-3">
                         <div class="col-md-3 fw-bold">Fecha de creación:</div>

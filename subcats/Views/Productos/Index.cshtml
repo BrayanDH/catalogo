@@ -24,6 +24,18 @@
             {
                 <div class="col">
                     <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        {
+                            <img src="@producto.ImagenUrl" class="card-img-top" alt="@producto.Nombre" 
+                                 style="height: 180px; object-fit: contain; padding: 10px;">
+                        }
+                        else
+                        {
+                            <div class="text-center bg-light p-3" style="height: 180px;">
+                                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                <p class="text-muted">Sin imagen</p>
+                            </div>
+                        }
                         <div class="card-body">
                             <h5 class="card-title">@producto.Nombre</h5>
                             <p class="card-text text-truncate">@producto.Descripcion</p>

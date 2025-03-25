@@ -22,6 +22,15 @@
                         </div>
                     </div>
                     
+                    @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+                    {
+                        <div class="row mb-4">
+                            <div class="col-md-12 text-center">
+                                <img src="@Model.ImagenUrl" style="max-width: 200px; max-height: 200px;" class="img-fluid rounded" />
+                            </div>
+                        </div>
+                    }
+                    
                     <div class="row mb-3">
                         <div class="col-md-3 fw-bold">Descripción:</div>
                         <div class="col-md-9">@Model.Descripcion</div>
@@ -36,6 +45,14 @@
                         <div class="col-md-3 fw-bold">Stock:</div>
                         <div class="col-md-9">@Model.Stock unidades</div>
                     </div>
+                    
+                    @if (Model.CategoriaId.HasValue)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3 fw-bold">Categoría:</div>
+                            <div class="col-md-9">@ViewBag.NombreCategoria</div>
+                        </div>
+                    }
                     
                     <form asp-action="DeleteConfirmed" asp-route-id="@Model.Id_producto" method="post">
                         @Html.AntiForgeryToken()

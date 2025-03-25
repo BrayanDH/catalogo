@@ -1,15 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using subcats.customClass;
 using subcats.dto;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace subcats.Controllers
 {
     public class ProductosController : Controller
     {
         private readonly Dao _db = new Dao();
+        private readonly CategoriaService _categoriaService = new CategoriaService();
 
         // GET: Productos
         public IActionResult Index()
@@ -48,6 +51,14 @@ namespace subcats.Controllers
                 {
                     return NotFound();
                 }
+
+                // Si el producto tiene categoría, cargar su nombre
+                if (producto.CategoriaId.HasValue)
+                {
+                    var categoria = _categoriaService.ObtenerCategoria(producto.CategoriaId.Value);
+                    ViewBag.NombreCategoria = categoria?.Nombre ?? "Categoría no encontrada";
+                }
+
                 return View(producto);
             }
             catch (Exception ex)
@@ -65,6 +76,9 @@ namespace subcats.Controllers
             {
                 return RedirectToAction("Login", "Auth");
             }
+
+            // Cargar las categorías para el select
+            CargarCategorias();
 
             return View(new Producto());
         }
@@ -88,11 +102,15 @@ namespace subcats.Controllers
                     TempData["SuccessMessage"] = "Producto creado exitosamente.";
                     return RedirectToAction(nameof(Index));
                 }
+
+                // Recargar las categorías para el select en caso de error
+                CargarCategorias();
                 return View(producto);
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al crear el producto: {ex.Message}";
+                CargarCategorias();
                 return View(producto);
             }
         }
@@ -113,6 +131,10 @@ namespace subcats.Controllers
                 {
                     return NotFound();
                 }
+
+                // Cargar las categorías para el select
+                CargarCategorias();
+
                 return View(producto);
             }
             catch (Exception ex)
@@ -151,14 +173,17 @@ namespace subcats.Controllers
                     else
                     {
                         TempData["ErrorMessage"] = "No se pudo actualizar el producto. Verifique los datos e intente nuevamente.";
+                        CargarCategorias();
                         return View(producto);
                     }
                 }
+                CargarCategorias();
                 return View(producto);
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al actualizar el producto: {ex.Message}";
+                CargarCategorias();
                 return View(producto);
             }
         }
@@ -179,6 +204,14 @@ namespace subcats.Controllers
                 {
                     return NotFound();
                 }
+
+                // Si el producto tiene categoría, cargar su nombre
+                if (producto.CategoriaId.HasValue)
+                {
+                    var categoria = _categoriaService.ObtenerCategoria(producto.CategoriaId.Value);
+                    ViewBag.NombreCategoria = categoria?.Nombre ?? "Categoría no encontrada";
+                }
+
                 return View(producto);
             }
             catch (Exception ex)
@@ -209,6 +242,20 @@ namespace subcats.Controllers
             {
                 TempData["ErrorMessage"] = $"Error al eliminar el producto: {ex.Message}";
                 return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // Método privado para cargar las categorías en ViewBag
+        private void CargarCategorias()
+        {
+            try
+            {
+                var categorias = _categoriaService.ObtenerTodasCategorias();
+                ViewBag.Categorias = new SelectList(categorias, "Id", "Nombre");
+            }
+            catch (Exception)
+            {
+                ViewBag.Categorias = new SelectList(new List<Categoria>(), "Id", "Nombre");
             }
         }
     }
