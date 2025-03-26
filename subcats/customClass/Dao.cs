@@ -705,5 +705,198 @@ namespace subcats.customClass
                 cnx.connection.Close();
             }
         }
+
+        // Métodos para Empleados
+        public List<Empleado> GetAllEmpleados()
+        {
+            List<Empleado> empleados = new List<Empleado>();
+            try
+            {
+                cnx.connection.Open();
+                string query = @"SELECT Id_empleado, Nombre, Apellido, Email, Telefono, Direccion, 
+                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado, 
+                              Fecha_Creacion, Fecha_Actualizacion 
+                              FROM empleados 
+                              ORDER BY Nombre, Apellido";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Empleado empleado = new Empleado();
+                        empleado.Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado"));
+                        empleado.Nombre = reader.GetString(reader.GetOrdinal("Nombre"));
+                        empleado.Apellido = reader.GetString(reader.GetOrdinal("Apellido"));
+                        empleado.Email = reader.GetString(reader.GetOrdinal("Email"));
+                        empleado.Telefono = reader.GetString(reader.GetOrdinal("Telefono"));
+                        empleado.Direccion = reader.GetString(reader.GetOrdinal("Direccion"));
+                        empleado.Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento"));
+                        empleado.Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso"));
+                        empleado.Salario = reader.GetDecimal(reader.GetOrdinal("Salario"));
+                        empleado.Estado = reader.GetBoolean(reader.GetOrdinal("Estado"));
+                        empleado.Fecha_Creacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion"));
+                        empleado.Fecha_Actualizacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"));
+                        empleados.Add(empleado);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener empleados: " + ex.Message);
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return empleados;
+        }
+
+        public Empleado GetEmpleado(string empleadoId)
+        {
+            Empleado empleado = new Empleado();
+            try
+            {
+                cnx.connection.Open();
+                string query = @"SELECT Id_empleado, Nombre, Apellido, Email, Telefono, Direccion, 
+                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado, 
+                              Fecha_Creacion, Fecha_Actualizacion 
+                              FROM empleados 
+                              WHERE Id_empleado = @empleadoId";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@empleadoId", int.Parse(empleadoId));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        empleado.Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado"));
+                        empleado.Nombre = reader.GetString(reader.GetOrdinal("Nombre"));
+                        empleado.Apellido = reader.GetString(reader.GetOrdinal("Apellido"));
+                        empleado.Email = reader.GetString(reader.GetOrdinal("Email"));
+                        empleado.Telefono = reader.GetString(reader.GetOrdinal("Telefono"));
+                        empleado.Direccion = reader.GetString(reader.GetOrdinal("Direccion"));
+                        empleado.Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento"));
+                        empleado.Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso"));
+                        empleado.Salario = reader.GetDecimal(reader.GetOrdinal("Salario"));
+                        empleado.Estado = reader.GetBoolean(reader.GetOrdinal("Estado"));
+                        empleado.Fecha_Creacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion"));
+                        empleado.Fecha_Actualizacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener empleado: " + ex.Message);
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return empleado;
+        }
+
+        public int InsertarEmpleado(Empleado empleado)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"INSERT INTO empleados (Nombre, Apellido, Email, Telefono, Direccion, 
+                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado)
+                              VALUES (@nombre, @apellido, @email, @telefono, @direccion, 
+                              @fechaNacimiento, @fechaIngreso, @salario, @estado);
+                              SELECT SCOPE_IDENTITY();";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@nombre", empleado.Nombre);
+                    cmd.Parameters.AddWithValue("@apellido", empleado.Apellido);
+                    cmd.Parameters.AddWithValue("@email", empleado.Email);
+                    cmd.Parameters.AddWithValue("@telefono", empleado.Telefono);
+                    cmd.Parameters.AddWithValue("@direccion", empleado.Direccion);
+                    cmd.Parameters.AddWithValue("@fechaNacimiento", empleado.Fecha_Nacimiento ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fechaIngreso", empleado.Fecha_Ingreso);
+                    cmd.Parameters.AddWithValue("@salario", empleado.Salario);
+                    cmd.Parameters.AddWithValue("@estado", empleado.Estado);
+
+                    object result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al insertar empleado: " + ex.Message);
+                return 0;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public bool ActualizarEmpleado(Empleado empleado)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"UPDATE empleados 
+                               SET Nombre = @nombre,
+                                   Apellido = @apellido,
+                                   Email = @email,
+                                   Telefono = @telefono,
+                                   Direccion = @direccion,
+                                   Fecha_Nacimiento = @fechaNacimiento,
+                                   Fecha_Ingreso = @fechaIngreso,
+                                   Salario = @salario,
+                                   Estado = @estado,
+                                   Fecha_Actualizacion = GETDATE()
+                               WHERE Id_empleado = @id_empleado";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@id_empleado", empleado.Id_empleado);
+                    cmd.Parameters.AddWithValue("@nombre", empleado.Nombre);
+                    cmd.Parameters.AddWithValue("@apellido", empleado.Apellido);
+                    cmd.Parameters.AddWithValue("@email", empleado.Email);
+                    cmd.Parameters.AddWithValue("@telefono", empleado.Telefono);
+                    cmd.Parameters.AddWithValue("@direccion", empleado.Direccion);
+                    cmd.Parameters.AddWithValue("@fechaNacimiento", empleado.Fecha_Nacimiento ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fechaIngreso", empleado.Fecha_Ingreso);
+                    cmd.Parameters.AddWithValue("@salario", empleado.Salario);
+                    cmd.Parameters.AddWithValue("@estado", empleado.Estado);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al actualizar empleado: " + ex.Message);
+                return false;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public void EliminarEmpleado(string empleadoId)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"DELETE FROM empleados WHERE Id_empleado = @empleadoId";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@empleadoId", int.Parse(empleadoId));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al eliminar empleado: " + ex.Message);
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
     }
 }
