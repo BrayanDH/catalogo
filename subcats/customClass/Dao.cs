@@ -46,6 +46,19 @@ namespace subcats.customClass
                 BEGIN
                     ALTER TABLE productos ADD stock INT NOT NULL DEFAULT 0;
                 END
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'proveedores')
+                BEGIN
+                    CREATE TABLE proveedores (
+                        id_proveedor INT IDENTITY(1,1) PRIMARY KEY,
+                        nombre NVARCHAR(100) NOT NULL,
+                        telefono NVARCHAR(20) NOT NULL,
+                        email NVARCHAR(100) NOT NULL,
+                        direccion NVARCHAR(200) NOT NULL,
+                        fecha_creacion DATETIME DEFAULT GETDATE(),
+                        fecha_actualizacion DATETIME DEFAULT GETDATE()
+                    );
+                END
                 ");
 
                 SqlCommand command = new SqlCommand(sb.ToString(), cnx.connection);
@@ -53,7 +66,7 @@ namespace subcats.customClass
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error al verificar/crear tabla productos: " + ex.Message);
+                Console.WriteLine("Error al verificar/crear tablas: " + ex.Message);
             }
             finally
             {
@@ -519,6 +532,166 @@ namespace subcats.customClass
                 }
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public List<Proveedor> GetAllProveedores()
+        {
+            List<Proveedor> proveedores = new List<Proveedor>();
+            try
+            {
+                cnx.connection.Open();
+                string query = @"SELECT id_proveedor, nombre, telefono, email, direccion, 
+                              fecha_creacion, fecha_actualizacion FROM proveedores";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Proveedor proveedor = new Proveedor();
+                        proveedor.Id_proveedor = reader.GetInt32(reader.GetOrdinal("id_proveedor"));
+                        proveedor.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
+                        proveedor.Telefono = reader.GetString(reader.GetOrdinal("telefono"));
+                        proveedor.Email = reader.GetString(reader.GetOrdinal("email"));
+                        proveedor.Direccion = reader.GetString(reader.GetOrdinal("direccion"));
+                        proveedor.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
+                        proveedor.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
+                        proveedores.Add(proveedor);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener proveedores: " + ex.Message);
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return proveedores;
+        }
+
+        public Proveedor GetProveedor(string proveedorId)
+        {
+            Proveedor proveedor = new Proveedor();
+            try
+            {
+                cnx.connection.Open();
+                string query = @"SELECT id_proveedor, nombre, telefono, email, direccion, 
+                              fecha_creacion, fecha_actualizacion 
+                              FROM proveedores WHERE id_proveedor = @proveedorId";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@proveedorId", int.Parse(proveedorId));
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        proveedor.Id_proveedor = reader.GetInt32(reader.GetOrdinal("id_proveedor"));
+                        proveedor.Nombre = reader.GetString(reader.GetOrdinal("nombre"));
+                        proveedor.Telefono = reader.GetString(reader.GetOrdinal("telefono"));
+                        proveedor.Email = reader.GetString(reader.GetOrdinal("email"));
+                        proveedor.Direccion = reader.GetString(reader.GetOrdinal("direccion"));
+                        proveedor.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
+                        proveedor.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener proveedor: " + ex.Message);
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return proveedor;
+        }
+
+        public int InsertarProveedor(Proveedor proveedor)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"INSERT INTO proveedores (nombre, telefono, email, direccion)
+                                VALUES (@nombre, @telefono, @email, @direccion);
+                                SELECT SCOPE_IDENTITY();";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@nombre", proveedor.Nombre);
+                    cmd.Parameters.AddWithValue("@telefono", proveedor.Telefono);
+                    cmd.Parameters.AddWithValue("@email", proveedor.Email);
+                    cmd.Parameters.AddWithValue("@direccion", proveedor.Direccion);
+
+                    object result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al insertar proveedor: " + ex.Message);
+                return 0;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public bool ActualizarProveedor(Proveedor proveedor)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"UPDATE proveedores 
+                               SET nombre = @nombre,
+                                   telefono = @telefono,
+                                   email = @email,
+                                   direccion = @direccion,
+                                   fecha_actualizacion = GETDATE()
+                               WHERE id_proveedor = @id_proveedor";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@id_proveedor", proveedor.Id_proveedor);
+                    cmd.Parameters.AddWithValue("@nombre", proveedor.Nombre);
+                    cmd.Parameters.AddWithValue("@telefono", proveedor.Telefono);
+                    cmd.Parameters.AddWithValue("@email", proveedor.Email);
+                    cmd.Parameters.AddWithValue("@direccion", proveedor.Direccion);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al actualizar proveedor: " + ex.Message);
+                return false;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public void EliminarProveedor(string proveedorId)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = @"DELETE FROM proveedores WHERE id_proveedor = @proveedorId";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@proveedorId", int.Parse(proveedorId));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al eliminar proveedor: " + ex.Message);
             }
             finally
             {

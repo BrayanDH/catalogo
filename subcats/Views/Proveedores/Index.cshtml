@@ -1,0 +1,112 @@
+@model IEnumerable<subcats.dto.Proveedor>
+
+@{
+    ViewData["Title"] = "Proveedores";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-truck text-primary me-2"></i>Gestión de Proveedores
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Nuevo Proveedor
+        </a>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list me-2"></i>Lista de Proveedores
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="proveedoresTable" class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Dirección</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id_proveedor</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-building text-primary me-2"></i>
+                                        @item.Nombre
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-phone text-success me-2"></i>
+                                        @item.Telefono
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-envelope text-info me-2"></i>
+                                        @item.Email
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                        @item.Direccion
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id_proveedor" 
+                                           class="btn btn-warning btn-sm" title="Editar">
+                                            <i class="fas fa-edit me-1"></i>Editar
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id_proveedor" 
+                                              method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('¿Está seguro de eliminar este proveedor?')"
+                                                    title="Eliminar">
+                                                <i class="fas fa-trash me-1"></i>Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#proveedoresTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                },
+                "pageLength": 10,
+                "ordering": true,
+                "responsive": true,
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                "columnDefs": [
+                    {
+                        "targets": -1,
+                        "orderable": false
+                    }
+                ]
+            });
+        });
+    </script>
+} 
