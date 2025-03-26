@@ -92,7 +92,6 @@ namespace subcats.Controllers
                     int id = _db.InsertarEmpleado(empleado);
                     if (id > 0)
                     {
-                        TempData["SuccessMessage"] = "Empleado creado exitosamente.";
                         return RedirectToAction(nameof(Index));
                     }
                     else
@@ -157,7 +156,6 @@ namespace subcats.Controllers
                     bool actualizado = _db.ActualizarEmpleado(empleado);
                     if (actualizado)
                     {
-                        TempData["SuccessMessage"] = "Empleado actualizado exitosamente.";
                         return RedirectToAction(nameof(Index));
                     }
                     else
@@ -213,7 +211,6 @@ namespace subcats.Controllers
             try
             {
                 _db.EliminarEmpleado(id.ToString());
-                TempData["SuccessMessage"] = "Empleado eliminado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
