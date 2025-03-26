@@ -59,6 +59,35 @@ namespace subcats.customClass
                         fecha_actualizacion DATETIME DEFAULT GETDATE()
                     );
                 END
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'empleados')
+                BEGIN
+                    CREATE TABLE empleados (
+                        Id_empleado INT IDENTITY(1,1) PRIMARY KEY,
+                        Nombre NVARCHAR(100) NOT NULL,
+                        Apellido NVARCHAR(100) NOT NULL,
+                        Email NVARCHAR(100) NOT NULL,
+                        Telefono NVARCHAR(20) NOT NULL,
+                        Direccion NVARCHAR(200) NOT NULL,
+                        Fecha_Nacimiento DATE NULL,
+                        Fecha_Ingreso DATE NOT NULL,
+                        Salario DECIMAL(10,2) NOT NULL,
+                        Estado BIT NOT NULL DEFAULT 1,
+                        Fecha_Creacion DATETIME NOT NULL DEFAULT GETDATE(),
+                        Fecha_Actualizacion DATETIME NOT NULL DEFAULT GETDATE()
+                    );
+
+                    CREATE TRIGGER TR_Empleados_UpdateFechaActualizacion
+                    ON empleados
+                    AFTER UPDATE
+                    AS
+                    BEGIN
+                        UPDATE empleados
+                        SET Fecha_Actualizacion = GETDATE()
+                        FROM empleados e
+                        INNER JOIN inserted i ON e.Id_empleado = i.Id_empleado;
+                    END;
+                END
                 ");
 
                 SqlCommand command = new SqlCommand(sb.ToString(), cnx.connection);
@@ -713,37 +742,45 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT Id_empleado, Nombre, Apellido, Email, Telefono, Direccion, 
-                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado, 
-                              Fecha_Creacion, Fecha_Actualizacion 
-                              FROM empleados 
-                              ORDER BY Nombre, Apellido";
+                string query = @"
+                    SELECT Id_empleado, Nombre, Apellido, Email, Telefono, 
+                           Direccion, Fecha_Nacimiento, Fecha_Ingreso, 
+                           Salario, Estado, Fecha_Creacion, Fecha_Actualizacion
+                    FROM empleados
+                    ORDER BY Nombre, Apellido";
+
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        Empleado empleado = new Empleado();
-                        empleado.Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado"));
-                        empleado.Nombre = reader.GetString(reader.GetOrdinal("Nombre"));
-                        empleado.Apellido = reader.GetString(reader.GetOrdinal("Apellido"));
-                        empleado.Email = reader.GetString(reader.GetOrdinal("Email"));
-                        empleado.Telefono = reader.GetString(reader.GetOrdinal("Telefono"));
-                        empleado.Direccion = reader.GetString(reader.GetOrdinal("Direccion"));
-                        empleado.Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento"));
-                        empleado.Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso"));
-                        empleado.Salario = reader.GetDecimal(reader.GetOrdinal("Salario"));
-                        empleado.Estado = reader.GetBoolean(reader.GetOrdinal("Estado"));
-                        empleado.Fecha_Creacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion"));
-                        empleado.Fecha_Actualizacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"));
-                        empleados.Add(empleado);
+                        while (reader.Read())
+                        {
+                            Empleado empleado = new Empleado
+                            {
+                                Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado")),
+                                Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                                Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                                Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) 
+                                    ? null 
+                                    : reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento")),
+                                Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso")),
+                                Salario = reader.GetDecimal(reader.GetOrdinal("Salario")),
+                                Estado = reader.GetBoolean(reader.GetOrdinal("Estado")),
+                                Fecha_Creacion = reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion")),
+                                Fecha_Actualizacion = reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"))
+                            };
+                            empleados.Add(empleado);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al obtener empleados: " + ex.Message);
+                throw;
             }
             finally
             {
@@ -754,46 +791,54 @@ namespace subcats.customClass
 
         public Empleado GetEmpleado(string empleadoId)
         {
-            Empleado empleado = new Empleado();
             try
             {
                 cnx.connection.Open();
-                string query = @"SELECT Id_empleado, Nombre, Apellido, Email, Telefono, Direccion, 
-                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado, 
-                              Fecha_Creacion, Fecha_Actualizacion 
-                              FROM empleados 
-                              WHERE Id_empleado = @empleadoId";
+                string query = @"
+                    SELECT Id_empleado, Nombre, Apellido, Email, Telefono, 
+                           Direccion, Fecha_Nacimiento, Fecha_Ingreso, 
+                           Salario, Estado, Fecha_Creacion, Fecha_Actualizacion
+                    FROM empleados
+                    WHERE Id_empleado = @id";
+
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
-                    cmd.Parameters.AddWithValue("@empleadoId", int.Parse(empleadoId));
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
+                    cmd.Parameters.AddWithValue("@id", empleadoId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        empleado.Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado"));
-                        empleado.Nombre = reader.GetString(reader.GetOrdinal("Nombre"));
-                        empleado.Apellido = reader.GetString(reader.GetOrdinal("Apellido"));
-                        empleado.Email = reader.GetString(reader.GetOrdinal("Email"));
-                        empleado.Telefono = reader.GetString(reader.GetOrdinal("Telefono"));
-                        empleado.Direccion = reader.GetString(reader.GetOrdinal("Direccion"));
-                        empleado.Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento"));
-                        empleado.Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso"));
-                        empleado.Salario = reader.GetDecimal(reader.GetOrdinal("Salario"));
-                        empleado.Estado = reader.GetBoolean(reader.GetOrdinal("Estado"));
-                        empleado.Fecha_Creacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion"));
-                        empleado.Fecha_Actualizacion = reader.IsDBNull(reader.GetOrdinal("Fecha_Actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"));
+                        if (reader.Read())
+                        {
+                            return new Empleado
+                            {
+                                Id_empleado = reader.GetInt32(reader.GetOrdinal("Id_empleado")),
+                                Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                                Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                                Fecha_Nacimiento = reader.IsDBNull(reader.GetOrdinal("Fecha_Nacimiento")) 
+                                    ? null 
+                                    : reader.GetDateTime(reader.GetOrdinal("Fecha_Nacimiento")),
+                                Fecha_Ingreso = reader.GetDateTime(reader.GetOrdinal("Fecha_Ingreso")),
+                                Salario = reader.GetDecimal(reader.GetOrdinal("Salario")),
+                                Estado = reader.GetBoolean(reader.GetOrdinal("Estado")),
+                                Fecha_Creacion = reader.GetDateTime(reader.GetOrdinal("Fecha_Creacion")),
+                                Fecha_Actualizacion = reader.GetDateTime(reader.GetOrdinal("Fecha_Actualizacion"))
+                            };
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al obtener empleado: " + ex.Message);
+                throw;
             }
             finally
             {
                 cnx.connection.Close();
             }
-            return empleado;
+            return null;
         }
 
         public int InsertarEmpleado(Empleado empleado)
@@ -801,11 +846,16 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"INSERT INTO empleados (Nombre, Apellido, Email, Telefono, Direccion, 
-                              Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado)
-                              VALUES (@nombre, @apellido, @email, @telefono, @direccion, 
-                              @fechaNacimiento, @fechaIngreso, @salario, @estado);
-                              SELECT SCOPE_IDENTITY();";
+                string query = @"
+                    INSERT INTO empleados (
+                        Nombre, Apellido, Email, Telefono, Direccion, 
+                        Fecha_Nacimiento, Fecha_Ingreso, Salario, Estado
+                    ) VALUES (
+                        @nombre, @apellido, @email, @telefono, @direccion,
+                        @fechaNacimiento, @fechaIngreso, @salario, @estado
+                    );
+                    SELECT SCOPE_IDENTITY();";
+
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     cmd.Parameters.AddWithValue("@nombre", empleado.Nombre);
@@ -813,19 +863,18 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@email", empleado.Email);
                     cmd.Parameters.AddWithValue("@telefono", empleado.Telefono);
                     cmd.Parameters.AddWithValue("@direccion", empleado.Direccion);
-                    cmd.Parameters.AddWithValue("@fechaNacimiento", empleado.Fecha_Nacimiento ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fechaNacimiento", (object)empleado.Fecha_Nacimiento ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@fechaIngreso", empleado.Fecha_Ingreso);
                     cmd.Parameters.AddWithValue("@salario", empleado.Salario);
                     cmd.Parameters.AddWithValue("@estado", empleado.Estado);
 
-                    object result = cmd.ExecuteScalar();
-                    return result != null ? Convert.ToInt32(result) : 0;
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al insertar empleado: " + ex.Message);
-                return 0;
+                throw;
             }
             finally
             {
@@ -838,27 +887,28 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"UPDATE empleados 
-                               SET Nombre = @nombre,
-                                   Apellido = @apellido,
-                                   Email = @email,
-                                   Telefono = @telefono,
-                                   Direccion = @direccion,
-                                   Fecha_Nacimiento = @fechaNacimiento,
-                                   Fecha_Ingreso = @fechaIngreso,
-                                   Salario = @salario,
-                                   Estado = @estado,
-                                   Fecha_Actualizacion = GETDATE()
-                               WHERE Id_empleado = @id_empleado";
+                string query = @"
+                    UPDATE empleados 
+                    SET Nombre = @nombre,
+                        Apellido = @apellido,
+                        Email = @email,
+                        Telefono = @telefono,
+                        Direccion = @direccion,
+                        Fecha_Nacimiento = @fechaNacimiento,
+                        Fecha_Ingreso = @fechaIngreso,
+                        Salario = @salario,
+                        Estado = @estado
+                    WHERE Id_empleado = @id";
+
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
-                    cmd.Parameters.AddWithValue("@id_empleado", empleado.Id_empleado);
+                    cmd.Parameters.AddWithValue("@id", empleado.Id_empleado);
                     cmd.Parameters.AddWithValue("@nombre", empleado.Nombre);
                     cmd.Parameters.AddWithValue("@apellido", empleado.Apellido);
                     cmd.Parameters.AddWithValue("@email", empleado.Email);
                     cmd.Parameters.AddWithValue("@telefono", empleado.Telefono);
                     cmd.Parameters.AddWithValue("@direccion", empleado.Direccion);
-                    cmd.Parameters.AddWithValue("@fechaNacimiento", empleado.Fecha_Nacimiento ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fechaNacimiento", (object)empleado.Fecha_Nacimiento ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@fechaIngreso", empleado.Fecha_Ingreso);
                     cmd.Parameters.AddWithValue("@salario", empleado.Salario);
                     cmd.Parameters.AddWithValue("@estado", empleado.Estado);
@@ -869,7 +919,7 @@ namespace subcats.customClass
             catch (Exception ex)
             {
                 Console.WriteLine("Error al actualizar empleado: " + ex.Message);
-                return false;
+                throw;
             }
             finally
             {
@@ -882,16 +932,18 @@ namespace subcats.customClass
             try
             {
                 cnx.connection.Open();
-                string query = @"DELETE FROM empleados WHERE Id_empleado = @empleadoId";
+                string query = "DELETE FROM empleados WHERE Id_empleado = @id";
+
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
-                    cmd.Parameters.AddWithValue("@empleadoId", int.Parse(empleadoId));
+                    cmd.Parameters.AddWithValue("@id", empleadoId);
                     cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al eliminar empleado: " + ex.Message);
+                throw;
             }
             finally
             {
