@@ -950,5 +950,152 @@ namespace subcats.customClass
                 cnx.connection.Close();
             }
         }
+
+        public List<CargoEmpleado> ObtenerCargosEmpleados()
+        {
+            var cargos = new List<CargoEmpleado>();
+            try
+            {
+                cnx.connection.Open();
+                string query = "SELECT * FROM CargosEmpleados ORDER BY Nombre";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cargos.Add(new CargoEmpleado
+                            {
+                                Id_cargo = reader.GetInt32(0),
+                                Nombre = reader.GetString(1),
+                                Descripcion = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Fecha_creacion = reader.GetDateTime(3),
+                                Fecha_actualizacion = reader.GetDateTime(4)
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener cargos: {ex.Message}");
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return cargos;
+        }
+
+        public CargoEmpleado ObtenerCargoEmpleadoPorId(int id)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = "SELECT * FROM CargosEmpleados WHERE Id_cargo = @Id";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new CargoEmpleado
+                            {
+                                Id_cargo = reader.GetInt32(0),
+                                Nombre = reader.GetString(1),
+                                Descripcion = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Fecha_creacion = reader.GetDateTime(3),
+                                Fecha_actualizacion = reader.GetDateTime(4)
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener cargo: {ex.Message}");
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+            return null;
+        }
+
+        public bool CrearCargoEmpleado(CargoEmpleado cargo)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = "INSERT INTO CargosEmpleados (Nombre, Descripcion) VALUES (@Nombre, @Descripcion)";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@Nombre", cargo.Nombre);
+                    cmd.Parameters.AddWithValue("@Descripcion", (object)cargo.Descripcion ?? DBNull.Value);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al crear cargo: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public bool ActualizarCargoEmpleado(CargoEmpleado cargo)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = "UPDATE CargosEmpleados SET Nombre = @Nombre, Descripcion = @Descripcion, Fecha_actualizacion = GETDATE() WHERE Id_cargo = @Id";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", cargo.Id_cargo);
+                    cmd.Parameters.AddWithValue("@Nombre", cargo.Nombre);
+                    cmd.Parameters.AddWithValue("@Descripcion", (object)cargo.Descripcion ?? DBNull.Value);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al actualizar cargo: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
+
+        public bool EliminarCargoEmpleado(int id)
+        {
+            try
+            {
+                cnx.connection.Open();
+                string query = "DELETE FROM CargosEmpleados WHERE Id_cargo = @Id";
+                using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al eliminar cargo: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                cnx.connection.Close();
+            }
+        }
     }
 }

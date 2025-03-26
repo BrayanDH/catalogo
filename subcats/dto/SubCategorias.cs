@@ -57,4 +57,13 @@
         public int? Estado { get; set; }
         public int? Position { get; set; }
     }
+
+    public class CargoEmpleado
+    {
+        public int Id_cargo { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime? Fecha_creacion { get; set; }
+        public DateTime? Fecha_actualizacion { get; set; }
+    }
 }
