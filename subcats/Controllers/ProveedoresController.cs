@@ -58,7 +58,8 @@ namespace subcats.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
         {
             _dao.EliminarProveedor(id.ToString());
             return RedirectToAction(nameof(Index));
