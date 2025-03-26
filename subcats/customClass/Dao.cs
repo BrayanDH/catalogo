@@ -267,7 +267,7 @@ namespace subcats.customClass
             {
                 cnx.connection.Open();
                 string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, 
-                              fecha_creacion, fecha_actualizacion, CategoriaId, ImagenBinaria as Imagen
+                              fecha_creacion, fecha_actualizacion, CategoriaId, ProveedorId, ImagenBinaria as Imagen
                          FROM productos WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
@@ -286,6 +286,7 @@ namespace subcats.customClass
                         producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
                         producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
                         producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
+                        producto.ProveedorId = reader.IsDBNull(reader.GetOrdinal("ProveedorId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("ProveedorId"));
                         
                         // Recuperar datos de imagen si existen
                         if (!reader.IsDBNull(reader.GetOrdinal("Imagen")))
@@ -325,7 +326,7 @@ namespace subcats.customClass
             {
                 cnx.connection.Open();
                 string query = @"SELECT id_producto, nombre, descripcion, precio, impuesto, descuento, stock, 
-                              fecha_creacion, fecha_actualizacion, CategoriaId, ImagenBinaria as Imagen
+                              fecha_creacion, fecha_actualizacion, CategoriaId, ProveedorId, ImagenBinaria as Imagen
                          FROM productos";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
@@ -344,6 +345,7 @@ namespace subcats.customClass
                         producto.Fecha_creacion = reader.IsDBNull(reader.GetOrdinal("fecha_creacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_creacion"));
                         producto.Fecha_actualizacion = reader.IsDBNull(reader.GetOrdinal("fecha_actualizacion")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("fecha_actualizacion"));
                         producto.CategoriaId = reader.IsDBNull(reader.GetOrdinal("CategoriaId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("CategoriaId"));
+                        producto.ProveedorId = reader.IsDBNull(reader.GetOrdinal("ProveedorId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("ProveedorId"));
                         
                         // Recuperar datos de imagen si existen
                         if (!reader.IsDBNull(reader.GetOrdinal("Imagen")))
@@ -419,6 +421,7 @@ namespace subcats.customClass
                                    stock = @stock,
                                    fecha_actualizacion = GETDATE(),
                                    CategoriaId = @categoriaId,
+                                   ProveedorId = @proveedorId,
                                    ImagenBinaria = @imagen
                                WHERE id_producto = @productoId";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
@@ -431,6 +434,7 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
                     cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@proveedorId", producto.ProveedorId ?? (object)DBNull.Value);
                     
                     // Manejar imagen como parámetro binario
                     if (producto.Imagen != null && producto.Imagen.Length > 0)
@@ -482,9 +486,11 @@ namespace subcats.customClass
                 }
 
                 cnx.connection.Open();
-                string query = @"INSERT INTO productos (nombre, descripcion, precio, impuesto, descuento, stock, CategoriaId, ImagenBinaria)
-                                VALUES (@nombre, @descripcion, @precio, @impuesto, @descuento, @stock, @categoriaId, @imagen);
-                                SELECT SCOPE_IDENTITY();";
+                string query = @"INSERT INTO productos (nombre, descripcion, precio, impuesto, descuento, stock, 
+                              fecha_creacion, fecha_actualizacion, CategoriaId, ImagenBinaria, ProveedorId)
+                              VALUES (@nombre, @descripcion, @precio, @impuesto, @descuento, @stock,
+                              GETDATE(), GETDATE(), @categoriaId, @imagen, @proveedorId);
+                              SELECT SCOPE_IDENTITY();";
                 using (SqlCommand cmd = new SqlCommand(query, cnx.connection))
                 {
                     cmd.Parameters.AddWithValue("@nombre", producto.Nombre);
@@ -494,6 +500,7 @@ namespace subcats.customClass
                     cmd.Parameters.AddWithValue("@descuento", producto.Descuento ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@stock", producto.Stock);
                     cmd.Parameters.AddWithValue("@categoriaId", producto.CategoriaId ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@proveedorId", producto.ProveedorId ?? (object)DBNull.Value);
                     
                     // Manejar imagen como parámetro binario
                     if (producto.Imagen != null && producto.Imagen.Length > 0)

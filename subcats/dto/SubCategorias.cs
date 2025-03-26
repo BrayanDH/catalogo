@@ -26,6 +26,7 @@
         public DateTime? Fecha_creacion { get; set; }
         public DateTime? Fecha_actualizacion { get; set; }
         public int? CategoriaId { get; set; }
+        public int? ProveedorId { get; set; }
         
         // La imagen no debe ser requerida
         public byte[] Imagen { get; set; } = null;

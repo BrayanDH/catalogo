@@ -54,6 +54,13 @@
                             <span asp-validation-for="CategoriaId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
+                            <label asp-for="ProveedorId" class="form-label">Proveedor</label>
+                            <select asp-for="ProveedorId" class="form-select" asp-items="ViewBag.Proveedores">
+                                <option value="">-- Seleccione un proveedor --</option>
+                            </select>
+                            <span asp-validation-for="ProveedorId" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
                             <label asp-for="ImagenFile" class="form-label">Imagen del Producto</label>
                             <input asp-for="ImagenFile" class="form-control" type="file" accept="image/*" id="imagenInput" />
                             <div class="form-text">Seleccione una imagen para el producto (JPG, PNG, GIF)</div>

@@ -89,8 +89,9 @@ namespace subcats.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Cargar las categorías para el select
+            // Cargar las categorías y proveedores para el select
             CargarCategorias();
+            CargarProveedores();
 
             // Inicializar producto con valores por defecto
             var producto = new Producto
@@ -262,8 +263,9 @@ namespace subcats.Controllers
                     return NotFound();
                 }
 
-                // Cargar las categorías para el select
+                // Cargar las categorías y proveedores para el select
                 CargarCategorias();
+                CargarProveedores();
 
                 return View(producto);
             }
@@ -540,6 +542,19 @@ namespace subcats.Controllers
             catch (Exception)
             {
                 ViewBag.Categorias = new SelectList(new List<Categoria>(), "Id", "Nombre");
+            }
+        }
+
+        private void CargarProveedores()
+        {
+            try
+            {
+                var proveedores = _db.GetAllProveedores();
+                ViewBag.Proveedores = new SelectList(proveedores, "Id_proveedor", "Nombre");
+            }
+            catch (Exception)
+            {
+                ViewBag.Proveedores = new SelectList(new List<Proveedor>(), "Id_proveedor", "Nombre");
             }
         }
 
