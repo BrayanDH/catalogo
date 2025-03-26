@@ -214,8 +214,8 @@ namespace subcats.Controllers
                     if (idProducto > 0)
                     {
                         Console.WriteLine($"Producto creado exitosamente con ID: {idProducto}");
-                        TempData["SuccessMessage"] = "Producto creado exitosamente.";
-                        return RedirectToAction(nameof(Index));
+                    TempData["SuccessMessage"] = "Producto creado exitosamente.";
+                    return RedirectToAction(nameof(Index));
                     }
                     else
                     {
@@ -228,7 +228,7 @@ namespace subcats.Controllers
                 {
                     Console.WriteLine($"Error al insertar el producto en la base de datos: {ex.Message}");
                     TempData["ErrorMessage"] = $"Error al guardar: {ex.Message}";
-                    return View(producto);
+                return View(producto);
                 }
             }
             catch (Exception ex)
@@ -410,7 +410,7 @@ namespace subcats.Controllers
                 {
                     Console.WriteLine($"Error al actualizar el producto en la base de datos: {ex.Message}");
                     TempData["ErrorMessage"] = $"Error al guardar: {ex.Message}";
-                    return View(producto);
+                return View(producto);
                 }
             }
             catch (Exception ex)
