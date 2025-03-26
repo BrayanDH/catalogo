@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Karina\\catalogo-1\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\karina\\catalogo-1\\subcats\\views\\productos\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|solutionrelative:subcats\\views\\productos\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|c:\\users\\karina\\catalogo-1\\subcats\\customclass\\conection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{56FD062A-D3E4-4229-B563-04E45E418B9B}|subcats\\subcats.csproj|solutionrelative:subcats\\customclass\\conection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -47,19 +51,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\Views\\Productos\\Edit.cshtml",
+              "RelativeDocumentMoniker": "subcats\\Views\\Productos\\Edit.cshtml",
+              "ToolTip": "C:\\Users\\Karina\\catalogo-1\\subcats\\Views\\Productos\\Edit.cshtml",
+              "RelativeToolTip": "subcats\\Views\\Productos\\Edit.cshtml",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAAADAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-26T04:10:10.657Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Conection.cs",
               "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\customClass\\Conection.cs",
               "RelativeDocumentMoniker": "subcats\\customClass\\Conection.cs",
               "ToolTip": "C:\\Users\\Karina\\catalogo-1\\subcats\\customClass\\Conection.cs",
               "RelativeToolTip": "subcats\\customClass\\Conection.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-22T21:12:40.217Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\Program.cs",
               "RelativeDocumentMoniker": "subcats\\Program.cs",
@@ -71,7 +88,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "SubCategorias.cs",
               "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\dto\\SubCategorias.cs",
               "RelativeDocumentMoniker": "subcats\\dto\\SubCategorias.cs",
@@ -83,7 +100,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "SubCategoriasController.cs",
               "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\Controllers\\SubCategoriasController.cs",
               "RelativeDocumentMoniker": "subcats\\Controllers\\SubCategoriasController.cs",
@@ -101,7 +118,7 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Dao.cs",
               "DocumentMoniker": "C:\\Users\\Karina\\catalogo-1\\subcats\\customClass\\Dao.cs",
               "RelativeDocumentMoniker": "subcats\\customClass\\Dao.cs",
