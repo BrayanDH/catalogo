@@ -38,6 +38,17 @@ namespace subcats.Controllers
             try
             {
                 var productos = _db.GetAllProductos();
+                
+                // Verificar el rol del usuario
+                var role = HttpContext.Session.GetString("Role");
+                
+                // Si es un usuario normal, mostrar una vista simplificada
+                if (role != "Admin")
+                {
+                    return View("Catalogo", productos);
+                }
+                
+                // Si es administrador, mostrar la vista completa
                 return View(productos);
             }
             catch (Exception ex)

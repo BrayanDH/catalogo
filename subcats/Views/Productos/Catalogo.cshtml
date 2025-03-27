@@ -1,0 +1,65 @@
+@model List<subcats.dto.Producto>
+@{
+    ViewData["Title"] = "Catálogo de Productos";
+}
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h1 class="display-4">Catálogo de Productos</h1>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            No hay productos disponibles en el catálogo.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var producto in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        @if (producto.Imagen != null && producto.Imagen.Length > 0)
+                        {
+                            <img src="@Url.Action("GetImage", "Productos", new { id = producto.Id_producto })" 
+                                 class="card-img-top" 
+                                 alt="@producto.Nombre" 
+                                 style="height: 180px; object-fit: contain; padding: 10px;">
+                        }
+                        else
+                        {
+                            <div class="text-center bg-light p-3" style="height: 180px;">
+                                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                <p class="text-muted">Sin imagen</p>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@producto.Nombre</h5>
+                            <p class="card-text">@producto.Descripcion</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary rounded-pill fs-6">L @producto.Precio.ToString("N2")</span>
+                                @if (producto.Stock > 0)
+                                {
+                                    <span class="badge bg-success rounded-pill">Disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger rounded-pill">Agotado</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex justify-content-center">
+                                <a href="/Productos/Details/@producto.Id_producto" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-info-circle"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
